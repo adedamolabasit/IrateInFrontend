@@ -31,14 +31,15 @@ export function Login() {
         alertError(response.data.message);
         return;
       }
-      auth.initUser(response.data);
+      console.log(response.data,'yyy')
+      await auth.initUser(response.data);
       alertSuccess(response.data.message);
-      setTimeout(() => {
-        navigate("/");
-      }, 2000);
+      console.log(status)
+      navigate("/");
     } catch (err) {
+      console.log(err,"p")
       alertError(
-        err?.response?.data?.message || "Something went wrong, try again"
+        err?.response?.data?.non_field_errors[0] || "Something went wrong, try again"
       );
       setStatus(STATE.ERROR);
     }
@@ -89,7 +90,7 @@ export function Login() {
           />
           {errors.password && <small>{errors.password}</small>}
         </div>
-        <p className="font-semibold text-[#F9A242] ">Forgot Password?</p>
+        <p className="font-semibold text-[#F9A242] "><a href="/signup" > Signup </a> </p>
         <button
           className="mt-[3.7vh] bg-[#0B468C] w-full py-[0.74vh] rounded-[0.5rem] text-white hover:bg-opacity-90 font-semibold "
           type="submit"

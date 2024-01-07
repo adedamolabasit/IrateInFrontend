@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import chat from "../../assets/home/chat.svg";
 import { useApp } from "../../contexts/AppContext";
 import AddUser from "./AddUser";

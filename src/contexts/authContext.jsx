@@ -1,21 +1,20 @@
 import { useState, useContext, createContext } from "react";
-import { getUsers } from "../services/AuthService";
+import { getUsers, getFriends } from "../services/AuthService";
 import PropTypes from "prop-types";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState({});
   const [listUsers, setListUser] = useState([]);
+  const [friends, setFriends] = useState([]);
+  const [userToken, setUserToken] = useState("");
+  const [userId, setUserId] = useState();
+  const [userSession, setUserSession] = useState();
 
-  // TODO: check for expiry when initing user
   const initUser = async (data) => {
     const expiryInSeconds = data?.auth?.expiryInSeconds || 7200;
     if (!data.auth) data.auth = {};
 
-    setUser(data.user);
-
-    console.log(data, "zzzz", user);
     runLogoutTimer(expiryInSeconds * 1000);
     data.auth.expiryDate = new Date().getTime() + expiryInSeconds * 1000;
     localStorage.setItem(
@@ -25,11 +24,31 @@ export const AuthProvider = ({ children }) => {
       })
     );
     fetchUsers();
-    console.log(listUsers, "ooop");
+  };
+
+  const userPresence = async () => {
+    try {
+      const value = localStorage.getItem("user");
+      if (value) {
+        const cred = JSON.parse(value);
+        const { token, user, auth } = cred;
+        setUserToken(token);
+        setUserId(user.id);
+        setUserSession(auth.expiryDate);
+        console.log(token, "iiii");
+      } else {
+        console.error("User credentials not found in local storage.");
+      }
+    } catch (error) {
+      console.error(
+        "Error parsing user credentials from local storage:",
+        error
+      );
+    }
   };
 
   const logout = () => {
-    setUser(null);
+    setUserToken(null);
     localStorage.removeItem("user");
   };
 
@@ -42,8 +61,17 @@ export const AuthProvider = ({ children }) => {
   const fetchUsers = async () => {
     try {
       const users = await getUsers();
+      console.log(users,"top")
       setListUser(users.data);
-      console.log(users, "nnn");
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  const fetchFriends = async () => {
+    try {
+      const friends = await getFriends();
+      console.log(friends,"op")
+      setFriends(friends.data);
     } catch (err) {
       console.log(err);
     }
@@ -51,7 +79,18 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, initUser, logout, fetchUsers, listUsers }}
+      value={{
+        userId,
+        userToken,
+        userSession,
+        initUser,
+        logout,
+        fetchUsers,
+        listUsers,
+        userPresence,
+        friends,
+        fetchFriends,
+      }}
     >
       {children}
     </AuthContext.Provider>

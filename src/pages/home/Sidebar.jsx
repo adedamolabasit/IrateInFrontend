@@ -1,11 +1,11 @@
-import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import home from "../../assets/auth/home.svg";
 import message from "../../assets/home/message.svg";
-import logout from "../../assets/home/logout.svg";
+import { useAuth } from "../../contexts/authContext";
 
 function Sidebar() {
   const location = useLocation();
+  const { logout } = useAuth();
   return (
     <div className="bg-[#0B468C] h-screen text-white w-[15.83vw] flex flex-col py-[3.7vh] px-[1.25vw] justify-between ">
       <div>
@@ -23,7 +23,7 @@ function Sidebar() {
           <h3>Message</h3>
         </Link>
       </div>
-      <button className="bg-white text-[#F00] flex items-center justify-center gap-2 rounded-[0.25rem] h-[6.44vh] ">
+      <button onClick={logout} className="bg-white text-[#F00] flex items-center justify-center gap-2 rounded-[0.25rem] h-[6.44vh] ">
         <img src={logout} alt="" />
         Logout
       </button>

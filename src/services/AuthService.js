@@ -16,3 +16,13 @@ export const getUsers = () => {
 export const getSingleUser = (id) => {
   return axios.get(`/users/${id}/`);
 };
+
+export const getChatMessages = (id) => {
+  return axios.get(`/messages/${id}/`);
+};
+export const addFriends = (data) => {
+  return axios.post(`/friends/${data}/`);
+};
+export const getFriends = () => {
+  return axios.get(`/friends/`);
+};

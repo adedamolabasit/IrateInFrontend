@@ -1,98 +1,154 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import chatuser from "../../assets/home/chatuser.svg";
 import send from "../../assets/home/send.svg";
-import apartment from "../../assets/home/apartment.svg";
 import Chatbox from "./Chatbox";
 import { useApp } from "../../contexts/AppContext";
-import { getSingleUser } from "../../services/AuthService";
+import { getSingleUser, getChatMessages } from "../../services/AuthService";
 import { STATE } from "../../utils";
+import { useAuth } from "../../contexts/authContext";
 
-function ChatInterface() {
+export function ChatInterface() {
   const { chatText, setChatText, userDetails } = useApp();
   const [chatUser, setChatUser] = useState({});
   const [status, setStatus] = useState(STATE.IDLE);
-  const [token, setToken] = useState();
   const [socket, setSocket] = useState(null);
-  const [inBox, setInBox] = useState("");
+  const [counter, setCounter] = useState(0);
+  const [inBox, setInBox] = useState([
+    {
+      message: "",
+      initiator: "",
+    },
+  ]);
+
+  const containerRef = useRef(null);
+  const {userToken, userId} = useAuth()
+
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollTop = containerRef.current.scrollHeight;
+    }
+  }, [inBox]);
+
+  const appendMessages = (newMessages) => {
+    setInBox((prevMessages) => [...prevMessages, ...newMessages]);
+  };
+
+  useEffect(() => {
+    if (userDetails) {
+      const newSocket = new WebSocket(
+        `ws://127.0.0.1:8000/ws/${userDetails}?token=${userToken}`
+      );
+
+      newSocket.onopen = () => {
+        console.log("WebSocket connection opened.");
+        setSocket(newSocket);
+      };
+
+      newSocket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        const chat = {
+          message: data.message,
+          initiator: data.initiator,
+        };
+        setCounter((prevCounter) => prevCounter + 1);
+        appendMessages([chat]);
+        console.log("WebSocket message received:", chat);
+        console.log("WebSocket message --:", inBox);
+      };
+    }
+    if (socket) {
+      socket.close();
+    }
+  }, [userDetails]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setStatus(STATE.LOADING);
         const response = await getSingleUser(userDetails);
-        console.log(response, "mmmm");
         setStatus(STATE.SUCCESS);
         setChatUser(response.data);
+        console.log(chatUser,"poooiuy")
       } catch (error) {
         setStatus(STATE.ERROR);
         console.error("Error fetching user:", error);
+        console.log(status);
       }
     };
     if (userDetails) {
       fetchData();
     }
-    const user = localStorage.getItem("user");
-    const { token } = JSON.parse(user);
-    setToken(token);
-  }, [userDetails]);
+  }, [counter, userDetails]);
 
   useEffect(() => {
-    if (userDetails && token) {
-      const newSocket = new WebSocket(
-        `ws://127.0.0.1:8000/ws/${userDetails}?token=${token}`
-      );
-
-      // Set the socket in state
-      setSocket(newSocket);
-
-      // WebSocket Event Listeners
-      newSocket.onopen = () => {
-        console.log("WebSocket connection opened.");
-      };
-
-      newSocket.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        console.log("WebSocket message received:", data.message);
-        setInBox(data.message);
-      };
-
-      newSocket.onclose = () => {
-        console.log("WebSocket connection closed.");
-      };
+    const fetchMessage = async () => {
+      try {
+        const messages = await getChatMessages(userDetails);
+        const allMessages = messages.data.map((chat) => ({
+          message: chat.content,
+          initiator: chat.initiator,
+        }));
+        setInBox(allMessages);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    if (userDetails) {
+      fetchMessage();
     }
-  }, [userDetails, token]);
+  }, [userDetails, counter]);
 
   const sendText = (text) => {
+    const cookies = localStorage.getItem("user");
+    const { user } = JSON.parse(cookies);
     if (socket && chatText.trim() !== "") {
-      // Send the current message
-      const message = { message: text };
+      const message = {
+        initiator: user.id,
+        message: text,
+      };
       socket.send(JSON.stringify(message));
-
-      // Optionally, update the state to clear the input after sending
       setChatText("");
+    }
+  };
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      sendText(chatText);
     }
   };
 
   return (
-    <div className="flex flex-col justify-between h-full">
+    <div className="h-full flex flex-col justify-between">
       <div className="py-[1.76vh] pl-[2rem] flex  border-b border-b-[#F2F2F2] gap-[0.94rem] ">
         <img src={chatuser} alt="" className="w-[2.25rem] " />
         <div className="flex flex-col">
-          <h2 className="text-[#4F4F4F] ">{chatUser.first_name}</h2>
+          <h2 className="text-[#4F4F4F] ">{chatUser?.first_name}</h2>
           <small className="text-[0.625rem] text-[#008000]  ">Online</small>
         </div>
       </div>
-      <main className="pt-[3.70vh] pb-[2.78vh] pl-[1.67vw] pr-[1.82vw] h-full flex flex-col justify-between ">
-        <div className=" h-full overflow-auto flex flex-col">
+      <main className="pt-[3.70vh] pb-[2.78vh] pl-[1.67vw] pr-[1.82vw] h-[80vh] flex flex-col justify-between ">
+        <div ref={containerRef} className="overflow-auto flex flex-col">
           <p className="text-center text-xs font-medium text-[#828282] mb-[0.83vh] ">
             Nov 23, 2023
           </p>
-          <div className="mb-[4.91vh] ">
-            <img src={apartment} alt="" className="mb-[1.76vh]" />
-            <p className="font-bold text-[#4F4F4F]">2 Bedroom Duplex</p>
-          </div>
-          <Chatbox receive={true} send={false} inBox={inBox} />
-          <Chatbox send={true} receive={false} />
+          {[...inBox].reverse().map((message, index) => {
+            const isInitiator = message.initiator == userId; // Check if the message is from the initiator
+            console.log(message.initiator,"uu")
+            return isInitiator ? (
+              <Chatbox
+                key={index}
+                receive={true}
+                send={false}
+                inBox={message.message}
+              />
+            ) : (
+              <Chatbox
+                key={index}
+                receive={false}
+                send={true}
+                inBox={message.message}
+              />
+            );
+          })}
         </div>
 
         <div className="w-full h-[5.93vh] bg-[#F8F8F8] rounded-[0.5rem] px-[0.833vw] flex items-center justify-between gap-4 mt-3 ">
@@ -102,6 +158,7 @@ function ChatInterface() {
             id="chat"
             value={chatText}
             onChange={(e) => setChatText(e.target.value)}
+            onKeyDown={handleKeyPress}
             className="w-full bg-inherit  outline-none text-sm"
             placeholder="Write your message"
           />
@@ -113,5 +170,3 @@ function ChatInterface() {
     </div>
   );
 }
-
-export default ChatInterface;

@@ -1,8 +1,11 @@
 import { useFormik } from "formik";
+import { useState } from "react";
 import { UserValidation } from "./UserValidation";
-import { toast } from "react-toastify";
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 import "react-toastify/dist/ReactToastify.css";
+import { STATE, alertError, alertSuccess } from "../../utils";
+import { addFriends } from "../../services/AuthService";
+import { useNavigate } from "react-router-dom";
 
 const initialValues = {
   user_email: "",
@@ -10,19 +13,48 @@ const initialValues = {
 };
 
 function AddUser({ setShowAddUserModal }) {
+  const navigate = useNavigate();
+  const [status, setStatus] = useState(STATE.IDLE);
+
+  
+  const addFriend = async (values) => {
+    try {
+  
+      const email=values.user_email
+      setStatus(STATE.LOADING);
+      const response = await addFriends(email);
+      console.log(response,"voopp")
+      setStatus(STATE.SUCCESS);
+      if (response.data.success && !response.data.data) {
+        alertError(response.data.message);
+        return;
+      }
+      alertSuccess("Person has successfully been added");
+      console.log(status);
+      setTimeout(() => {
+        navigate("/chat");
+      }, 2000);
+    } catch (err) {
+      alertError("Something went wrong, try again");
+      setStatus(STATE.ERROR);
+    }
+  };
+
+
   const { values, errors, handleChange, handleSubmit } = useFormik({
     validationSchema: UserValidation,
     initialValues: initialValues,
     onSubmit: (values) => {
-      console.log(values);
-      toast.success("Person has successfully been added");
+      console.log(values,"cdw")
+
+      addFriend(values);
     },
   });
 
   return (
-    <div className="bg-white pt-[2.96vh] pb-[4.07vh] px-[1.67vw] rounded-[0.5rem] ">
+    <div className="m-auto bg-white pt-[2.96vh] pb-[4.07vh] px-[1.67vw] rounded-[0.5rem] ">
       <h1 className="text-[#4F4F4F] mb-[2.41vh] text-xl ">Invite a Person</h1>
-      <form onSubmit={handleSubmit}>
+      <form action= "" onSubmit={handleSubmit}>
         <div className="flex flex-col mb-[2.22vh] w-[31.25rem] ">
           <label htmlFor="user_email" className=" text-sm text-[#4F4F4F]">
             Email Address

@@ -38,6 +38,7 @@ const Signup = () => {
         err?.response?.data?.message || "Something went wrong, try again"
       );
       setStatus(STATE.ERROR);
+      console.log(status)
     }
   };
 
@@ -123,7 +124,7 @@ const Signup = () => {
             <small className="text-red-600">{errors.password}</small>
           )}
         </div>
-
+        <p className="font-semibold text-[#F9A242] "><a href="/login" > Sign In </a> </p>
         <button
           className="mt-[3.7vh] bg-[#0B468C] w-full py-[0.74vh] rounded-[0.5rem] text-white hover:bg-opacity-90 font-semibold "
           type="submit"

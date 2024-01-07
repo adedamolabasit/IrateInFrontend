@@ -1,9 +1,10 @@
 import { useEffect } from "react";
 import Sidebar from "./Sidebar";
-import Nav from "./Nav";
+import { Nav } from "./Nav";
 import { useAuth } from "../../contexts/authContext";
+import PropTypes from 'prop-types';
 
-function Home({ children }) {
+export function Home({ children }) {
   const auth = useAuth();
 
   useEffect(() => {
@@ -12,12 +13,13 @@ function Home({ children }) {
   return (
     <div className="w-screen h-screen flex items-start ">
       <Sidebar />
-      <div className="w-full h-full flex flex-col">
+      <div className="w-full h-[100vh] flex flex-col">
         <Nav />
-        <main className=" h-full w-full">{children}</main>
+        <main> {children}</main>
       </div>
     </div>
   );
 }
-
-export default Home;
+Home.propTypes = {
+  children: PropTypes.node.isRequired,
+};

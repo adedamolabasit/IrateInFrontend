@@ -6,9 +6,8 @@ const axiosApiInstance = axios.create({
 axiosApiInstance.interceptors.request.use(
   async (config) => {
     const value = await localStorage.getItem("user");
-    console.log(value.token,"kkds")
     if (value) {
-      const { auth, token } = JSON.parse(value);
+      const { token } = JSON.parse(value);
       config.headers = {
         Authorization: `Bearer ${token}`,
         Accept: "application/json",
