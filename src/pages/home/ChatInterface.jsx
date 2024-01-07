@@ -6,6 +6,7 @@ import { useApp } from "../../contexts/AppContext";
 import { getSingleUser, getChatMessages } from "../../services/AuthService";
 import { STATE } from "../../utils";
 import { useAuth } from "../../contexts/authContext";
+import { BASEURL } from "../../utils";
 
 export function ChatInterface() {
   const { chatText, setChatText, userDetails } = useApp();
@@ -21,7 +22,7 @@ export function ChatInterface() {
   ]);
 
   const containerRef = useRef(null);
-  const {userToken, userId} = useAuth()
+  const { userToken, userId } = useAuth();
 
   useEffect(() => {
     if (containerRef.current) {
@@ -36,7 +37,7 @@ export function ChatInterface() {
   useEffect(() => {
     if (userDetails) {
       const newSocket = new WebSocket(
-        `ws://127.0.0.1:8000/ws/${userDetails}?token=${userToken}`
+        `${BASEURL.socket}/${userDetails}?token=${userToken}`
       );
 
       newSocket.onopen = () => {
@@ -68,7 +69,7 @@ export function ChatInterface() {
         const response = await getSingleUser(userDetails);
         setStatus(STATE.SUCCESS);
         setChatUser(response.data);
-        console.log(chatUser,"poooiuy")
+        console.log(chatUser, "poooiuy");
       } catch (error) {
         setStatus(STATE.ERROR);
         console.error("Error fetching user:", error);
@@ -96,7 +97,7 @@ export function ChatInterface() {
     if (userDetails) {
       fetchMessage();
     }
-  }, [userDetails, counter]);
+  }, [counter, userDetails]);
 
   const sendText = (text) => {
     const cookies = localStorage.getItem("user");
@@ -111,7 +112,7 @@ export function ChatInterface() {
     }
   };
   const handleKeyPress = (event) => {
-    if (event.key === 'Enter') {
+    if (event.key === "Enter") {
       sendText(chatText);
     }
   };
@@ -132,7 +133,7 @@ export function ChatInterface() {
           </p>
           {[...inBox].reverse().map((message, index) => {
             const isInitiator = message.initiator == userId; // Check if the message is from the initiator
-            console.log(message.initiator,"uu")
+            console.log(message.initiator, "uu");
             return isInitiator ? (
               <Chatbox
                 key={index}

@@ -1,6 +1,8 @@
 import axios from "axios";
+import { BASEURL } from "./utils";
+
 const axiosApiInstance = axios.create({
-  baseURL: "http://127.0.0.1:8000/chat"
+  baseURL: BASEURL.http
 });
 
 axiosApiInstance.interceptors.request.use(
@@ -11,7 +13,6 @@ axiosApiInstance.interceptors.request.use(
       config.headers = {
         Authorization: `Bearer ${token}`,
         Accept: "application/json",
-        // ...config.headers,
       };
     }
     return config;

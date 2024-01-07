@@ -2,7 +2,7 @@ import axios from "../axios";
 
 // Auth services
 export const signup = (user) => {
-  return axios.post("/register/", user);
+  return axios.post("/signup/", user);
 };
 
 export const signin = (user) => {

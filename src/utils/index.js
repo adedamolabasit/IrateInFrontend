@@ -14,3 +14,8 @@ export const alertSuccess = (message) => {
 export const alertError = (message) => {
   toast.error(message);
 };
+
+export const BASEURL = {
+  http:"http://127.0.0.1:8000/api/v1",
+  socket:"ws://127.0.0.1:8000/ws"
+}
