@@ -1,5 +1,5 @@
 import { useState, useContext, createContext } from "react";
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 
 const AppContext = createContext();
 
@@ -7,12 +7,11 @@ export const AppProvider = ({ children }) => {
   const [showChat, setShowChat] = useState(false);
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [chatText, setChatText] = useState("");
-  const [userDetails, setUserDetails] = useState()
+  const [userDetails, setUserDetails] = useState();
 
   const onChatClick = (user) => {
     setShowChat(true);
-    setUserDetails(user)
-    console.log(userDetails,"koi")
+    setUserDetails(user);
   };
 
   return (
@@ -25,7 +24,7 @@ export const AppProvider = ({ children }) => {
         setShowAddUserModal,
         chatText,
         setChatText,
-        userDetails
+        userDetails,
       }}
     >
       {children}

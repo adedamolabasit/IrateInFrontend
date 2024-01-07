@@ -35,7 +35,6 @@ export const AuthProvider = ({ children }) => {
         setUserToken(token);
         setUserId(user.id);
         setUserSession(auth.expiryDate);
-        console.log(token, "iiii");
       } else {
         console.error("User credentials not found in local storage.");
       }
@@ -61,7 +60,6 @@ export const AuthProvider = ({ children }) => {
   const fetchUsers = async () => {
     try {
       const users = await getUsers();
-      console.log(users,"top")
       setListUser(users.data);
     } catch (err) {
       console.log(err);
@@ -70,7 +68,6 @@ export const AuthProvider = ({ children }) => {
   const fetchFriends = async () => {
     try {
       const friends = await getFriends();
-      console.log(friends,"op")
       setFriends(friends.data);
     } catch (err) {
       console.log(err);

@@ -44,7 +44,6 @@ export function Nav() {
         userRef.current = userData;
         
         setUser({first_name:response.data.first_name,lastName:response.data.last_name});
-        console.log(userRef.current,"uuss", response.data)
       } catch (error) {
         console.error("Error fetching user:", error);
       }

@@ -31,13 +31,12 @@ export function Login() {
         alertError(response.data.message);
         return;
       }
-      console.log(response.data,'yyy')
+
       await auth.initUser(response.data);
       alertSuccess(response.data.message);
       console.log(status)
       navigate("/");
     } catch (err) {
-      console.log(err,"p")
       alertError(
         err?.response?.data?.non_field_errors[0] || "Something went wrong, try again"
       );
@@ -49,7 +48,6 @@ export function Login() {
     validationSchema: LoginValidation,
     initialValues: initialValues,
     onSubmit: (values) => {
-      console.log(values);
       handleLogin(values);
     },
   });

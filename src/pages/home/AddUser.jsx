@@ -23,7 +23,6 @@ function AddUser({ setShowAddUserModal }) {
       const email=values.user_email
       setStatus(STATE.LOADING);
       const response = await addFriends(email);
-      console.log(response,"voopp")
       setStatus(STATE.SUCCESS);
       if (response.data.success && !response.data.data) {
         alertError(response.data.message);
@@ -45,8 +44,6 @@ function AddUser({ setShowAddUserModal }) {
     validationSchema: UserValidation,
     initialValues: initialValues,
     onSubmit: (values) => {
-      console.log(values,"cdw")
-
       addFriend(values);
     },
   });

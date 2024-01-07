@@ -15,6 +15,11 @@ Currently, two official plugins are available:
 git https://github.com/adedamolabasit/IrateInFrontend
 cd assessment
 ```
+### Environment Variables
+***Copy the .env.example file to .env and update the values accordingly.***
+```bash
+cp .env.example .env
+```
 
 ### Install Dependencies
 
